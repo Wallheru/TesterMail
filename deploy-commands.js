@@ -26,14 +26,11 @@ const rest = new REST({ version: '10' }).setToken(process.env.TOKEN);
 
 (async () => {
   try {
-    console.log("Registering commands...");
-
     await rest.put(
       Routes.applicationCommands(CLIENT_ID),
       { body: commands }
     );
-
-    console.log("✅ Commands registered!");
+    console.log("✅ Commands updated!");
   } catch (err) {
     console.error(err);
   }
