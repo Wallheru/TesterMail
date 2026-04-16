@@ -1,3 +1,5 @@
+require('dotenv').config();
+
 const { REST, Routes, SlashCommandBuilder } = require('discord.js');
 
 const commands = [
@@ -12,6 +14,26 @@ const commands = [
       option.setName('message')
         .setDescription('Message')
         .setRequired(true))
+    .addAttachmentOption(option =>
+      option.setName('file')
+        .setDescription('Image/file')
+        .setRequired(false)),
+
+  new SlashCommandBuilder()
+    .setName('reply')
+    .setDescription('Reply to a user')
+    .addStringOption(option =>
+      option.setName('userid')
+        .setDescription('User ID')
+        .setRequired(true))
+    .addStringOption(option =>
+      option.setName('message')
+        .setDescription('Reply message')
+        .setRequired(true))
+    .addAttachmentOption(option =>
+      option.setName('file')
+        .setDescription('Image/file')
+        .setRequired(false))
 ].map(cmd => cmd.toJSON());
 
 const rest = new REST({ version: '10' }).setToken(process.env.TOKEN);
