@@ -23,7 +23,7 @@ client.once("ready", () => {
 });
 
 // ==========================
-// USER → YOU (FORWARD)
+// USER → YOU
 // ==========================
 client.on("messageCreate", async (message) => {
   if (message.author.bot) return;
@@ -34,21 +34,29 @@ client.on("messageCreate", async (message) => {
       const owner = await client.users.fetch(OWNER_ID);
 
       const embed = new EmbedBuilder()
-        .setColor(0x2b2d31)
-        .setTitle("New Message")
+        .setColor(0x5865F2)
+        .setTitle("📩 New Message")
         .setDescription(message.content || "*No text*")
-        .addFields({
-          name: "From",
-          value: `${message.author.tag} (${message.author.id})`
-        })
+        .addFields(
+          {
+            name: "👤 User",
+            value: `${message.author.tag}`,
+            inline: true
+          },
+          {
+            name: "🆔 ID",
+            value: `${message.author.id}`,
+            inline: true
+          }
+        )
         .setTimestamp();
 
       await owner.send({
         embeds: [embed],
-        files: message.attachments.map(a => a.url)
+        files: [...message.attachments.values()] // ✅ FIXED
       });
 
-      await message.reply("📨 Message sent.");
+      await message.reply("📨 Message sent! Wait for reply.");
     } catch (err) {
       console.error(err);
     }
@@ -56,7 +64,7 @@ client.on("messageCreate", async (message) => {
 });
 
 // ==========================
-// /send ONLY
+// /send
 // ==========================
 client.on("interactionCreate", async (interaction) => {
   if (!interaction.isChatInputCommand()) return;
@@ -72,24 +80,24 @@ client.on("interactionCreate", async (interaction) => {
       const user = await client.users.fetch(userId);
 
       const embed = new EmbedBuilder()
-        .setColor(0x2b2d31)
-        .setTitle("New Message")
+        .setColor(0x57F287)
+        .setTitle("✉️ New Message")
         .setDescription(msg)
         .addFields({
-          name: "From",
+          name: "👤 From",
           value: interaction.user.tag
         })
         .setTimestamp();
 
       await user.send({
         embeds: [embed],
-        files: file ? [file.url] : []
+        files: file ? [file] : [] // ✅ FIXED
       });
 
-      await interaction.editReply("✅ Sent!");
+      await interaction.editReply("✅ Sent successfully!");
     } catch (err) {
       console.error(err);
-      await interaction.editReply("❌ Failed");
+      await interaction.editReply("❌ Failed to send");
     }
   }
 });
