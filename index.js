@@ -1,6 +1,11 @@
 require('dotenv').config();
 
-const { Client, GatewayIntentBits, Partials } = require('discord.js');
+const {
+  Client,
+  GatewayIntentBits,
+  Partials,
+  EmbedBuilder
+} = require('discord.js');
 
 const client = new Client({
   intents: [
@@ -18,7 +23,7 @@ client.once("ready", () => {
 });
 
 // ==========================
-// USER → BOT (forward to you)
+// USER → BOT (FORWARD)
 // ==========================
 client.on("messageCreate", async (message) => {
   if (message.author.bot) return;
@@ -28,16 +33,26 @@ client.on("messageCreate", async (message) => {
     try {
       const owner = await client.users.fetch(OWNER_ID);
 
-      const content =
-        message.content ||
-        message.attachments.first()?.url ||
-        "No content";
+      const embed = new EmbedBuilder()
+        .setTitle("📩 New Message")
+        .setColor(0x5865F2)
+        .addFields(
+          { name: "User", value: `${message.author.tag}`, inline: true },
+          { name: "User ID", value: `${message.author.id}`, inline: true },
+          {
+            name: "Message",
+            value: message.content || "*No text*"
+          }
+        )
+        .setThumbnail(message.author.displayAvatarURL())
+        .setTimestamp();
 
-      await owner.send(
-        `📩 New message\nUser: ${message.author.tag} (${message.author.id})\nMessage: ${content}`
-      );
+      await owner.send({
+        embeds: [embed],
+        files: message.attachments.map(a => a.url)
+      });
 
-      await message.reply("📨 Message sent. Please wait.");
+      await message.reply("📨 Your message was sent. Please wait for a reply.");
     } catch (err) {
       console.error(err);
     }
@@ -61,8 +76,15 @@ client.on("interactionCreate", async (interaction) => {
 
       const user = await client.users.fetch(userId);
 
+      const embed = new EmbedBuilder()
+        .setTitle("📨 New Message")
+        .setColor(0x00ff99)
+        .setDescription(msg)
+        .setFooter({ text: "Staff Response" })
+        .setTimestamp();
+
       await user.send({
-        content: `📨 ${msg}`,
+        embeds: [embed],
         files: file ? [file.url] : []
       });
 
@@ -84,8 +106,15 @@ client.on("interactionCreate", async (interaction) => {
 
       const user = await client.users.fetch(userId);
 
+      const embed = new EmbedBuilder()
+        .setTitle("💬 Reply")
+        .setColor(0x00b0f4)
+        .setDescription(msg)
+        .setFooter({ text: "Staff Reply" })
+        .setTimestamp();
+
       await user.send({
-        content: `💬 Reply:\n${msg}`,
+        embeds: [embed],
         files: file ? [file.url] : []
       });
 
