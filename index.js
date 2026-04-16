@@ -23,7 +23,7 @@ client.once("ready", () => {
 });
 
 // ==========================
-// USER → BOT (FORWARD)
+// USER → YOU (DM FORWARD)
 // ==========================
 client.on("messageCreate", async (message) => {
   if (message.author.bot) return;
@@ -34,17 +34,13 @@ client.on("messageCreate", async (message) => {
       const owner = await client.users.fetch(OWNER_ID);
 
       const embed = new EmbedBuilder()
-        .setTitle("📩 New Message")
         .setColor(0x5865F2)
-        .addFields(
-          { name: "User", value: `${message.author.tag}`, inline: true },
-          { name: "User ID", value: `${message.author.id}`, inline: true },
-          {
-            name: "Message",
-            value: message.content || "*No text*"
-          }
-        )
-        .setThumbnail(message.author.displayAvatarURL())
+        .setAuthor({
+          name: message.author.tag,
+          iconURL: message.author.displayAvatarURL()
+        })
+        .setDescription(message.content || "*No text*")
+        .setFooter({ text: `User ID: ${message.author.id}` })
         .setTimestamp();
 
       await owner.send({
@@ -52,7 +48,7 @@ client.on("messageCreate", async (message) => {
         files: message.attachments.map(a => a.url)
       });
 
-      await message.reply("📨 Your message was sent. Please wait for a reply.");
+      await message.reply("📨 Message sent. Please wait for a reply.");
     } catch (err) {
       console.error(err);
     }
@@ -65,7 +61,7 @@ client.on("messageCreate", async (message) => {
 client.on("interactionCreate", async (interaction) => {
   if (!interaction.isChatInputCommand()) return;
 
-  // ===== /send =====
+  // ===== SEND =====
   if (interaction.commandName === "send") {
     await interaction.deferReply({ ephemeral: true });
 
@@ -77,10 +73,12 @@ client.on("interactionCreate", async (interaction) => {
       const user = await client.users.fetch(userId);
 
       const embed = new EmbedBuilder()
-        .setTitle("📨 New Message")
         .setColor(0x00ff99)
+        .setAuthor({
+          name: interaction.user.tag,
+          iconURL: interaction.user.displayAvatarURL()
+        })
         .setDescription(msg)
-        .setFooter({ text: "Staff Response" })
         .setTimestamp();
 
       await user.send({
@@ -95,7 +93,7 @@ client.on("interactionCreate", async (interaction) => {
     }
   }
 
-  // ===== /reply =====
+  // ===== REPLY =====
   if (interaction.commandName === "reply") {
     await interaction.deferReply({ ephemeral: true });
 
@@ -107,10 +105,12 @@ client.on("interactionCreate", async (interaction) => {
       const user = await client.users.fetch(userId);
 
       const embed = new EmbedBuilder()
-        .setTitle("💬 Reply")
         .setColor(0x00b0f4)
+        .setAuthor({
+          name: interaction.user.tag,
+          iconURL: interaction.user.displayAvatarURL()
+        })
         .setDescription(msg)
-        .setFooter({ text: "Staff Reply" })
         .setTimestamp();
 
       await user.send({
