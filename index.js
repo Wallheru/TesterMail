@@ -23,7 +23,7 @@ client.once("ready", () => {
 });
 
 // ==========================
-// USER → YOU (DM FORWARD)
+// USER → YOU (FORWARD)
 // ==========================
 client.on("messageCreate", async (message) => {
   if (message.author.bot) return;
@@ -34,13 +34,13 @@ client.on("messageCreate", async (message) => {
       const owner = await client.users.fetch(OWNER_ID);
 
       const embed = new EmbedBuilder()
-        .setColor(0x5865F2)
-        .setAuthor({
-          name: message.author.tag,
-          iconURL: message.author.displayAvatarURL()
-        })
+        .setColor(0x2b2d31)
+        .setTitle("New Message")
         .setDescription(message.content || "*No text*")
-        .setFooter({ text: `User ID: ${message.author.id}` })
+        .addFields({
+          name: "From",
+          value: `${message.author.tag} (${message.author.id})`
+        })
         .setTimestamp();
 
       await owner.send({
@@ -48,7 +48,7 @@ client.on("messageCreate", async (message) => {
         files: message.attachments.map(a => a.url)
       });
 
-      await message.reply("📨 Message sent. Please wait for a reply.");
+      await message.reply("📨 Message sent.");
     } catch (err) {
       console.error(err);
     }
@@ -56,12 +56,11 @@ client.on("messageCreate", async (message) => {
 });
 
 // ==========================
-// SLASH COMMANDS
+// /send ONLY
 // ==========================
 client.on("interactionCreate", async (interaction) => {
   if (!interaction.isChatInputCommand()) return;
 
-  // ===== SEND =====
   if (interaction.commandName === "send") {
     await interaction.deferReply({ ephemeral: true });
 
@@ -73,12 +72,13 @@ client.on("interactionCreate", async (interaction) => {
       const user = await client.users.fetch(userId);
 
       const embed = new EmbedBuilder()
-        .setColor(0x00ff99)
-        .setAuthor({
-          name: interaction.user.tag,
-          iconURL: interaction.user.displayAvatarURL()
-        })
+        .setColor(0x2b2d31)
+        .setTitle("New Message")
         .setDescription(msg)
+        .addFields({
+          name: "From",
+          value: interaction.user.tag
+        })
         .setTimestamp();
 
       await user.send({
@@ -89,39 +89,7 @@ client.on("interactionCreate", async (interaction) => {
       await interaction.editReply("✅ Sent!");
     } catch (err) {
       console.error(err);
-      await interaction.editReply("❌ Failed (user must DM bot first)");
-    }
-  }
-
-  // ===== REPLY =====
-  if (interaction.commandName === "reply") {
-    await interaction.deferReply({ ephemeral: true });
-
-    try {
-      const userId = interaction.options.getString("userid");
-      const msg = interaction.options.getString("message");
-      const file = interaction.options.getAttachment("file");
-
-      const user = await client.users.fetch(userId);
-
-      const embed = new EmbedBuilder()
-        .setColor(0x00b0f4)
-        .setAuthor({
-          name: interaction.user.tag,
-          iconURL: interaction.user.displayAvatarURL()
-        })
-        .setDescription(msg)
-        .setTimestamp();
-
-      await user.send({
-        embeds: [embed],
-        files: file ? [file.url] : []
-      });
-
-      await interaction.editReply("✅ Reply sent!");
-    } catch (err) {
-      console.error(err);
-      await interaction.editReply("❌ Failed to reply");
+      await interaction.editReply("❌ Failed");
     }
   }
 });
